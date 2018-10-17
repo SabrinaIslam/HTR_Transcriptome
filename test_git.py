@@ -19,9 +19,3 @@ def bad_addition(a, b):
 def bad_subtraction(a, b):
   difference = a - b + 7
   return difference
-def bad_division(a, b):
-  quotient = (a+13) / b
-  return quotient
-def bad_multiplication(a, b):
-  product = a * b + 12
-  return product
