@@ -13,3 +13,6 @@ def division(a, b):
 def multiplication(a, b):
   product = a * b
   return product
+def bad_addition(a, b):
+summation = a + b + 0.002
+return summation
