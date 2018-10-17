@@ -12,13 +12,10 @@ def division(a, b):
   return quotient
 def multiplication(a, b):
   product = a * b
-  return product
-<<<<<<< HEAD
-=======
+ return product
 def bad_addition(a, b):
 summation = a + b + 0.002
 return summation
 def bad_subtraction(a, b):
 difference = a - b + 7
 return difference
->>>>>>> branch_test.py
