@@ -60,6 +60,16 @@ shorten the dataframe just to have the HTR genes
 
 HTRs Can be Grouped by Tissue Distribution (Thesis Chapter Four: The Specialised Expression Patterns of HTRs: A Family of Diverse Roles in Tissues)
 
+## File name: AllenBrain_filtering
+
+**Code function:**
+
+evaluation the threshold of expression detection 
+
+**Location in Results:**
+
+Classifying the HTRs in Brain by Relative Abundance of Expression (Thesis Chapter Two: Materials and Methods)
+
 ## File name: AllenBrain_compare_donor
 
 **Code function:**
@@ -85,6 +95,16 @@ Classifying the HTRs in Brain by Relative Abundance of Expression (Thesis Chapte
 **Code function:**
 
 look at the relative abundance of the HTR in brain tissues
+
+**Location in Results:**
+
+Five Patterns of HTR Expression Exists in the Brain (Thesis Chapter Four: The Specialised Expression Patterns of HTRs: A Family of Diverse Roles in Tissues)
+
+## File name: AllenBrain_lm
+
+**Code function:**
+
+fit the data to the linear model, look for variability across tissues, account for donor variability 
 
 **Location in Results:**
 
