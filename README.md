@@ -1,4 +1,4 @@
-# HTR_Distribution
+# HTR_Transcriptome
 
 ## File name: GTEX_subsetting
 
