@@ -1,5 +1,17 @@
 # HTR_Transcriptome
 
+## Data 
+
+- https://human.brain-map.org/static/download
+- https://gtexportal.org/home/tissueSummaryPage
+
+## Analysis Based on
+
+- https://jokergoo.github.io/ComplexHeatmap-reference/book/index.html for heatmaps
+- https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4937821/ for data pre-processing and DEG
+- https://f1000research.com/articles/9-1444 for design matrix 
+- http://genomicsclass.github.io/book/ for statistics 
+
 ## File name: GTEX_subsetting
 
 **Code function:**
