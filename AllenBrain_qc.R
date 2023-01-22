@@ -732,7 +732,12 @@ boxplot(lcpm_norm, las=2, col=col,
         main="")
 title(main="Logcpm transformed normlised libraries",ylab="log2(cpm+1)")
 
-# 
+#
+
+library(ggthemes)
+library(viridis)
+library(tidytree)
+
 gg_data <- as.data.frame(lcpm_norm) %>% gather(key = "Sample", value = "Count")
 
 head(gg_data)
@@ -755,6 +760,6 @@ gg_data %>%
 
 # exporting
 
-write.csv(norm_x$counts, "Data/NormalisedLibraries.csv")
+# write.csv(norm_x$counts, "Data/NormalisedLibraries.csv")
 
-write.csv(norm_x$counts, "Data/NormalisedGenes.csv")
+# write.csv(norm_x$counts, "Data/NormalisedGenes.csv")
