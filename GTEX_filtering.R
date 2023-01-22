@@ -16,7 +16,6 @@ library(tidyverse) # tidy data
 library(ggplot2) # plotting 
 library(gplots) # plotting data 
 library(RColorBrewer) # build color-pallates for plots 
-library(styler) # codes looks nicer
 library(ggthemes) # themes 
 library(viridis) # colour 
 
@@ -303,7 +302,7 @@ cutoff_library # 3.58
 
 count_mean <- mean(log2_gtex_dge) # 1.31
 
-count_median <- median(log2_gtex_dge) 0.065
+count_median <- median(log2_gtex_dge) #0.065
 
 c(count_mean, count_median)
 
@@ -926,7 +925,3 @@ print(mat_i)
 }
 
 # a bonus check on libraries: they are all variable 
-
-
-  
-  
