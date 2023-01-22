@@ -43,8 +43,7 @@ library(ggfortify) # pca
 
 ################################################################################
 
-setwd("C:/Users/sabrinai/OneDrive - The University of Melbourne/PHD/Chapter2/3.AllenBrain")
-
+setwd("C:/Users/sabrii/OneDrive - The University of Melbourne/PHD/Chapter2/3.AllenBrain")
 
 
 ################################################################################
@@ -303,7 +302,7 @@ for (i in 1:11) {
 
 htr_summary_stats <- do.call(rbind, htr_stat)
 
-write.csv(htr_summary_stats, "Output/htr_summary.csv")
+# write.csv(htr_summary_stats, "Output/htr_summary.csv")
 
 #################################################################################
 
@@ -335,6 +334,11 @@ bgl_col <- c("HTR1D" = "#8da0cb",
              "HTR4" = "#fc8d62", 
              "HTR6" = "#fc8d62")
 
+htr_df <- htr_dge[-c(5), ] # removing htr1f 
+
+rownames(htr_df) # 10 receptors 
+
+library(rstatix)
 
 for (i in 1:2) {
   
@@ -401,11 +405,6 @@ receptor_col <- c("HTR1A" = "#8da0cb",
                   "HTR7" = "#fc8d62")
 
 
-htr_df <- htr_dge[-c(5), ] # removing htr1f 
-
-rownames(htr_df) # 10 receptors 
-
-
 for (i in 1:10) {
 tissue_i <- ab_tissues %>%
   filter (ab_tissues$main_structure == main_str[i]) %>%
@@ -458,145 +457,157 @@ print(expplot_i)
 
 # data will be unfiltered to avoid filtering of these two lowly expressed genes 
 
+# building the dataset to fish out only 2b and 1f 
 
-ab_count_1 <- read.csv("Data/RNAseqCounts.csv",
-                       header = F,
-                       check.names = F,
-                       row.names = 1)
-
-colnames(ab_count_1) <-  rownames(ab_tissues_1) 
-
-
-ab_count_2 <- read.csv("Data2/RNAseqCounts.csv",
-                       header = F,
-                       check.names = F,
-                       row.names = 1)
-
-
-colnames(ab_count_2) <-  rownames(ab_tissues_2) 
-
-
-ab_count_whole <- cbind(ab_count_1, ab_count_2)
-
-
-ab_annot_1 <- data.frame(AnnotationDbi::select(org.Hs.eg.db, 
-                                               keys = rownames(ab_count_1),
-                                               columns = c ("GENENAME"),
-                                               keytype="GENENAME"))
-
-
-ab_annot_2 <- data.frame(AnnotationDbi::select(org.Hs.eg.db, 
-                                               keys = rownames(ab_count_2),
-                                               columns = c ("GENENAME"),
-                                               keytype="GENENAME"))
-
-
-ab_annot_whole <- ab_annot_1 # for DGE
-
-x <- DGEList(counts = ab_count_whole, genes = ab_annot_whole)
-
-x_norm <- calcNormFactors(x) # normalising (but no filtering)
-
-lcpm_norm <- log2(cpm(x_norm$counts) + 1) # log2 + cpm transformation 
-
-exp_median_list <- list()
-
-htr_median_list <- list()
-
-htr_iqr_list <- list()
-
-
-for (i in 1:11) {
-  # step 1 selecting the samples from each tissue 
-  
-  tissue_i <- ab_tissues %>%
-    filter (ab_tissues$sub_structure == tissue_list[i]) %>%
-    dplyr::select(SAMPID) %>% unlist()
-  
-  print(tissue_list[i])
-  
-  # step 2 divide 
-  
-  i_dge <- data.frame(lcpm_norm[, colnames(lcpm_norm) %in%  tissue_i])
-  
-  print(i_dge)
-  
-  htr_i <- rownames(i_dge[htrgenes,]) # indexing the genes
-  
-  print(htr_i)
-  
-  htr_exp_i <- as.data.frame(i_dge %>%
-                               subset(rownames(i_dge) %in%  htr_i)) # finding from df
-  
-  print(htr_exp_i)
-  
-  sample_num_i <- ncol(htr_exp_i) # for division
-  
-  # step 3: making a median of of the HTR tissues being present in the samples of each tissue
-  
-  median_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, median))
-  
-  names(median_htr_tissue_i)[names(median_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..median.'] <-sprintf( "%s", tissue_list[i])
-  
-  htr_median_list[[i]] <- median_htr_tissue_i # adding to the empty list
-  
-  
-  # step 4: making a maximum of of the HTR tissues being present in the samples of each tissue
-  
-  maximum_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, max))
-  
-  names(maximum_htr_tissue_i)[names(maximum_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..max.'] <-sprintf( "%s", tissue_list[i])
-  
-  htr_max_list[[i]] <- maximum_htr_tissue_i # adding to the empty list
-  
-  # step 5: make a median of all matrix
-  
-  mat_median_i <- data.frame(median(as.matrix(log2_ab_dge_whole[, colnames(log2_ab_dge_whole) %in%  tissue_i])))
-  
-  names(mat_median_i)[names(mat_median_i) == 'median.as.matrix.log2_ab_dge_whole...colnames.log2_ab_dge_whole...in..'] <-sprintf( "%s", tissue_list[i])
-  
-  exp_median_list[[i]] <- mat_median_i # adding to the empty list
-  
-  # step 6: IQR
-  
-  iqr_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, iqr))
-  
-  names(iqr_htr_tissue_i)[names(maximum_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..iqr.'] <-sprintf( "%s", tissue_list[i])
-  
-  htr_iqr_list[[i]] <- maximum_htr_tissue_i # adding to the empty list
-}
-
-htr_median_whole <- do.call(cbind, htr_median_list) # binding all values 
-
-htr_maximum_whole <- do.call(cbind, htr_max_list) # binding all values 
-
-htr_iqr_whole <- do.call(cbind, htr_iqr_list) # binding all values 
-
-exp_median_whole <- do.call(cbind, exp_median_list)
-
-htr2b_and_htr1f <- data.frame(rbind(exp_median_whole[1,],
-                                    1.3,
-                                    htr_median_whole[5,],
-                                    htr_median_whole[7,],
-                                    htr_maximum_whole[5,],
-                                    htr_maximum_whole[7,],
-                                    htr_iqr_whole[5,],
-                                    htr_iqr_whole[7,]))
-
-
-htr2b_and_htr1f <- round(htr2b_and_htr1f, digits = 3)
-
-rownames(htr2b_and_htr1f) <- c("Tissue median", "Detection threshold", "HTR1F median", "HTR2B median", 
-                               "HTR1F max", "HTR2B max", "HTR1F IQR", "HTR2B IQR")
-
-table(htr2b_and_htr1f[2, ] > htr2b_and_htr1f[5, ])
-
-table(htr2b_and_htr1f[2, ] > htr2b_and_htr1f[6, ])
-
-write.csv(htr2b_and_htr1f, "Output/no_detection.csv")
+# ab_count_1 <- read.csv("Data/RNAseqCounts.csv",
+#                        header = F,
+#                        check.names = F,
+#                        row.names = 1)
+# 
+# colnames(ab_count_1) <-  rownames(ab_tissues_1) 
+# 
+# 
+# ab_count_2 <- read.csv("Data2/RNAseqCounts.csv",
+#                        header = F,
+#                        check.names = F,
+#                        row.names = 1)
+# 
+# 
+# colnames(ab_count_2) <-  rownames(ab_tissues_2) 
+# 
+# 
+# ab_count_whole <- cbind(ab_count_1, ab_count_2)
+# 
+# 
+# ab_annot_1 <- data.frame(AnnotationDbi::select(org.Hs.eg.db, 
+#                                                keys = rownames(ab_count_1),
+#                                                columns = c ("GENENAME"),
+#                                                keytype="GENENAME"))
+# 
+# 
+# ab_annot_2 <- data.frame(AnnotationDbi::select(org.Hs.eg.db, 
+#                                                keys = rownames(ab_count_2),
+#                                                columns = c ("GENENAME"),
+#                                                keytype="GENENAME"))
+# 
+# 
+# ab_annot_whole <- ab_annot_1 # for DGE
+# 
+# x <- DGEList(counts = ab_count_whole, genes = ab_annot_whole)
+# 
+# x_norm <- calcNormFactors(x) # normalising (but no filtering)
+# 
+# lcpm_norm <- log2(cpm(x_norm$counts) + 1) # log2 + cpm transformation 
+# 
+# 
+# rm(htr_iqr_list)
+# 
+# exp_median_list <- list()
+# 
+# htr_median_list <- list()
+# 
+# htr_iqr_list <- list()
+# 
+# htr_max_list <- list()
+# 
+# 
+# for (i in 1:11) {
+#   # step 1 selecting the samples from each tissue 
+#   
+#   tissue_i <- ab_tissues %>%
+#     filter (ab_tissues$sub_structure == tissue_list[i]) %>%
+#     dplyr::select(SAMPID) %>% unlist()
+#   
+#   print(tissue_list[i])
+#   
+#   # step 2 divide 
+#   
+#   i_dge <- data.frame(lcpm_norm[, colnames(lcpm_norm) %in%  tissue_i])
+#   
+#   print(i_dge)
+#   
+#   htr_i <- rownames(i_dge[htrgenes,]) # indexing the genes
+#   
+#   print(htr_i)
+#   
+#   htr_exp_i <- as.data.frame(i_dge %>%
+#                                subset(rownames(i_dge) %in%  htr_i)) # finding from df
+#   
+#   print(htr_exp_i)
+#   
+#   sample_num_i <- ncol(htr_exp_i) # for division
+#   
+#   # step 3: making a median of of the HTR tissues being present in the samples of each tissue
+#   
+#   median_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, median))
+#   
+#   names(median_htr_tissue_i)[names(median_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..median.'] <-sprintf( "%s", tissue_list[i])
+#   
+#   htr_median_list[[i]] <- median_htr_tissue_i # adding to the empty list
+#   
+#   
+#   # step 4: making a maximum of of the HTR tissues being present in the samples of each tissue
+#   
+#   maximum_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, max))
+#   
+#   names(maximum_htr_tissue_i)[names(maximum_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..max.'] <-sprintf( "%s", tissue_list[i])
+#   
+#   htr_max_list[[i]] <- maximum_htr_tissue_i # adding to the empty list
+#   
+#   # step 5: make a median of all matrix
+#   
+#   mat_median_i <- data.frame(median(as.matrix(log2_ab_dge_whole[, colnames(log2_ab_dge_whole) %in%  tissue_i])))
+#   
+#   names(mat_median_i)[names(mat_median_i) == 'median.as.matrix.log2_ab_dge_whole...colnames.log2_ab_dge_whole...in..'] <-sprintf( "%s", tissue_list[i])
+#   
+#   exp_median_list[[i]] <- mat_median_i # adding to the empty list
+#   
+#   # step 6: IQR
+#   
+#   iqr_htr_tissue_i <- data.frame(apply((as.matrix(htr_exp_i)), 1, IQR))
+#   
+#   names(iqr_htr_tissue_i)[names(maximum_htr_tissue_i) == 'apply..as.matrix.htr_exp_i....1..iqr.'] <-sprintf( "%s", tissue_list[i])
+#   
+#   htr_iqr_list[[i]] <- maximum_htr_tissue_i # adding to the empty list
+# }
+# 
+# 
+# htr_median_whole <- do.call(cbind, htr_median_list) # binding all values 
+# 
+# htr_maximum_whole <- do.call(cbind, htr_max_list) # binding all values 
+# 
+# htr_iqr_whole <- do.call(cbind, htr_iqr_list) # binding all values 
+# 
+# exp_median_whole <- do.call(cbind, exp_median_list)
+# 
+# htr2b_and_htr1f <- data.frame(rbind(exp_median_whole[1,],
+#                                     1.3,
+#                                     htr_median_whole[5,],
+#                                     htr_median_whole[7,],
+#                                     htr_maximum_whole[5,],
+#                                     htr_maximum_whole[7,],
+#                                     htr_iqr_whole[5,],
+#                                     htr_iqr_whole[7,]))
+# 
+# 
+# htr2b_and_htr1f <- round(htr2b_and_htr1f, digits = 3)
+# 
+# rownames(htr2b_and_htr1f) <- c("Tissue median", "Detection threshold", "HTR1F median", "HTR2B median", 
+#                                "HTR1F max", "HTR2B max", "HTR1F IQR", "HTR2B IQR")
+# 
+# table(htr2b_and_htr1f[2, ] > htr2b_and_htr1f[5, ])
+# 
+# table(htr2b_and_htr1f[2, ] > htr2b_and_htr1f[6, ])
+# 
+# write.csv(htr2b_and_htr1f, "Output/no_detection.csv")
 
 
 # plot 
+
+bandf <- read.csv("Output/no_detection.csv", 
+                  header = T,
+                  check.names = T, 
+                  row.names = 1)
 
 transplot <- data.frame(t(htr2b_and_htr1f))
 
