@@ -43,7 +43,7 @@ library(ggfortify) # pca
 
 ################################################################################
 
-setwd("C:/Users/sabrii/OneDrive - The University of Melbourne/PHD/Chapter2/3.AllenBrain")
+setwd("C:/Users/sabrinai/OneDrive - The University of Melbourne/PHD/Chapter2/3.AllenBrain")
 
 
 ################################################################################
